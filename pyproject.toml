@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "questgen-ai"
+version = "0.1.0"
+description = ""
+authors = ["Jacka10086 <496806255@qq.com>"]
+readme = "README.md"
+packages = [{include = "questgen"}]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4.0"
+transformers = "4.29.2"
+sense2vec = "2.0.2"
+strsim = "0.0.3"
+six = "1.16.0"
+networkx = "3.1"
+numpy = "1.24.3"
+scikit-learn = "1.2.2"
+future = "0.18.3"
+joblib = "1.2.0"
+pytz = "2022.7.1"
+python-dateutil = "2.8.2"
+flashtext = "2.7"
+pandas = "1.5.3"
+sentencepiece = "0.1.99"
+nltk = "^3.9.1"
+pke = {git = "https://github.com/boudinfl/pke.git"}
+fastapi = "^0.115.6"
+uvicorn = "^0.34.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
