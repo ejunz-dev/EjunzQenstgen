@@ -33,16 +33,23 @@ class AnswerRequest(BaseModel):
 @app.post("/generate-mcq", response_model=Dict)
 async def generate_mcq(request: Request):
     try:
+        # 从请求体解析参数
         raw_body = await request.json()
         input_text = raw_body.get("input_text")
         max_questions = int(raw_body.get("max_questions", 0))
+        domain_id = raw_body.get("domainId", "system") 
+        user_id = raw_body.get("userId") 
 
+        # 参数验证
         if not input_text or max_questions <= 0:
             raise ValueError("Invalid input_text or max_questions.")
+        if not domain_id:
+            raise ValueError("Invalid domainId. It cannot be empty.")
+
+        print(f"Received domainId: {domain_id}, userId: {user_id}")
+        print("Payload sent to model:", {"input_text": input_text, "max_questions": max_questions})
 
         payload = {"input_text": input_text, "max_questions": max_questions}
-        print("Payload sent to model:", payload)
-
         result = qgen.predict_mcq(payload)
 
         # 格式化结果为合法 JSON
@@ -51,7 +58,6 @@ async def generate_mcq(request: Request):
             options = question["options"]
             correct_answer = question["answer"]
 
-            # 确保正确答案在选项中
             if correct_answer not in options:
                 options.insert(random.randint(0, len(options)), correct_answer)
 
@@ -65,9 +71,12 @@ async def generate_mcq(request: Request):
                 "answer": correct_answer,
             })
 
-        response = {"questions": questions}
+        response = {
+            "domainId": domain_id,  
+            "userId": user_id,     
+            "questions": questions
+        }
 
-        # 将 JSON 序列化并打印到日志
         serialized_response = json.dumps(response, indent=4)
         print("Serialized Response JSON:\n", serialized_response)
 
@@ -114,4 +123,4 @@ def answer_predict(request: AnswerRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=10086)
+    uvicorn.run(app, host="0.0.0.0", port=10001)
