@@ -60,7 +60,6 @@ async def generate_mcq(request: Request):
 
             if correct_answer not in options:
                 options.insert(random.randint(0, len(options)), correct_answer)
-
             labeled_options = [
                 {"label": chr(65 + idx), "value": opt} for idx, opt in enumerate(options)
             ]
