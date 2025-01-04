@@ -33,26 +33,31 @@ class AnswerRequest(BaseModel):
 @app.post("/generate-mcq", response_model=Dict)
 async def generate_mcq(request: Request):
     try:
-        # 从请求体解析参数
+      
         raw_body = await request.json()
         input_text = raw_body.get("input_text")
         max_questions = int(raw_body.get("max_questions", 0))
-        domain_id = raw_body.get("domainId", "system") 
-        user_id = raw_body.get("userId") 
+        domain_id = raw_body.get("domainId", "system")
+        user_id = raw_body.get("userId")
+        selected_document_id = raw_body.get("selected_document_id")  
 
-        # 参数验证
         if not input_text or max_questions <= 0:
             raise ValueError("Invalid input_text or max_questions.")
         if not domain_id:
             raise ValueError("Invalid domainId. It cannot be empty.")
+        if not selected_document_id:
+            raise ValueError("Invalid selected_document_id. It cannot be empty.")
 
-        print(f"Received domainId: {domain_id}, userId: {user_id}")
+        print(f"Received domainId: {domain_id}, userId: {user_id}, selectedDocumentId: {selected_document_id}")
         print("Payload sent to model:", {"input_text": input_text, "max_questions": max_questions})
 
-        payload = {"input_text": input_text, "max_questions": max_questions}
-        result = qgen.predict_mcq(payload)
+        payload = {
+            "input_text": input_text,
+            "max_questions": max_questions,
+            "selected_document_id": selected_document_id  
+        }
+        result = qgen.predict_mcq(payload) 
 
-        # 格式化结果为合法 JSON
         questions = []
         for question in result.get("questions", []):
             options = question["options"]
@@ -71,8 +76,9 @@ async def generate_mcq(request: Request):
             })
 
         response = {
-            "domainId": domain_id,  
-            "userId": user_id,     
+            "domainId": domain_id,
+            "userId": user_id,
+            "selected_document_id": selected_document_id, 
             "questions": questions
         }
 
